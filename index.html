@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daily Task Manager</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 480px;
+      margin: 40px auto;
+      padding: 0 16px;
+      background-color: #f9fafb;
+      color: #111827;
+    }
+    h1 {
+      font-size: 24px;
+      margin-bottom: 16px;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 24px;
+      background: #ffffff;
+      padding: 16px;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+    }
+    .form-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    input[type="text"] {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 10px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 15px;
+      outline: none;
+    }
+    input[type="text"]:focus, input[type="date"]:focus {
+      border-color: #4f46e5;
+    }
+    .due-date-wrapper {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: #4b5563;
+    }
+    input[type="date"] {
+      flex: 1;
+      padding: 8px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 13px;
+      outline: none;
+    }
+    button#add-btn {
+      padding: 9px 18px;
+      background-color: #4f46e5;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    button#add-btn:hover {
+      background-color: #4338ca;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    li.task-item {
+      padding: 12px 14px;
+      background-color: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      font-size: 14px;
+    }
+    .task-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: #4f46e5;
+      cursor: pointer;
+    }
+    .task-title {
+      flex: 1;
+      font-weight: 500;
+      word-break: break-word;
+    }
+    .completed {
+      text-decoration: line-through;
+      color: #9ca3af;
+    }
+    .action-btn {
+      background: none;
+      border: 1px solid #e5e7eb;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      color: #4b5563;
+    }
+    .action-btn:hover {
+      background-color: #f3f4f6;
+    }
+    .action-btn.dup {
+      color: #4f46e5;
+    }
+    .action-btn.dup:hover {
+      background-color: #eef2ff;
+    }
+    .task-meta {
+      display: flex;
+      gap: 8px;
+      margin-top: 6px;
+      margin-left: 28px;
+      font-size: 11px;
+      color: #6b7280;
+    }
+    .due-badge {
+      padding: 1px 6px;
+      border-radius: 4px;
+      background: #f3f4f6;
+    }
+    .overdue {
+      background-color: #fee2e2;
+      color: #dc2626;
+      font-weight: 600;
+    }
+    /* Inline edit styling */
+    .edit-box {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .edit-box input[type="text"] {
+      padding: 8px 10px;
+      font-size: 14px;
+    }
+    .edit-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .btn-save {
+      background-color: #4f46e5;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .btn-cancel {
+      background-color: #e5e7eb;
+      color: #374151;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .footer-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 16px;
+      padding-top: 12px;
+      border-top: 1px solid #e5e7eb;
+      font-size: 13px;
+      color: #6b7280;
+    }
+    button#clear-btn {
+      background: none;
+      border: none;
+      color: #d97706;
+      font-size: 13px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    button#clear-btn:hover {
+      text-decoration: underline;
+    }
+    /* History Section */
+    .history-section {
+      margin-top: 32px;
+      padding-top: 20px;
+      border-top: 1px solid #e5e7eb;
+    }
+    .history-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      color: #374151;
+      user-select: none;
+    }
+    .history-badge {
+      background: #e5e7eb;
+      padding: 2px 7px;
+      border-radius: 9999px;
+      font-size: 11px;
+      margin-left: 6px;
+    }
+    .history-list {
+      margin-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .history-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 12px;
+      background: #f3f4f6;
+      border-radius: 8px;
+      font-size: 12px;
+    }
+    .history-title {
+      text-decoration: line-through;
+      color: #6b7280;
+    }
+    .readd-btn {
+      background: none;
+      border: none;
+      color: #4f46e5;
+      font-size: 12px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    .readd-btn:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <h1>Daily Task Manager</h1>
+
+  <form id="task-form">
+    <input type="text" id="task-input" placeholder="What needs to get done?" autocomplete="off" />
+    <div class="form-row">
+      <div class="due-date-wrapper">
+        <label for="task-due-date">Due:</label>
+        <input type="date" id="task-due-date" />
+      </div>
+      <button type="submit" id="add-btn">Add</button>
+    </div>
+  </form>
+
+  <ul id="task-list"></ul>
+
+  <div class="footer-bar" id="footer-bar" style="display: none;">
+    <span id="task-count">0 tasks left</span>
+    <button type="button" id="clear-btn">Clear Completed</button>
+  </div>
+
+  <section class="history-section">
+    <div class="history-header" id="toggle-history">
+      <span>Task History <span class="history-badge" id="history-count">0</span></span>
+      <span id="history-toggle-icon">▼</span>
+    </div>
+    <div id="history-wrapper" style="display: none;">
+      <ul class="history-list" id="history-list"></ul>
+    </div>
+  </section>
+
+  <script>
+    const taskForm = document.getElementById('task-form');
+    const taskInput = document.getElementById('task-input');
+    const taskDueDate = document.getElementById('task-due-date');
+    const taskList = document.getElementById('task-list');
+    const footerBar = document.getElementById('footer-bar');
+    const taskCount = document.getElementById('task-count');
+    const clearBtn = document.getElementById('clear-btn');
+
+    const toggleHistory = document.getElementById('toggle-history');
+    const historyWrapper = document.getElementById('history-wrapper');
+    const historyList = document.getElementById('history-list');
+    const historyCount = document.getElementById('history-count');
+    const historyToggleIcon = document.getElementById('history-toggle-icon');
+
+    let tasks = [];
+    let history = [];
+    let editingTaskId = null; // Tracks which task ID is currently being edited
+    let showHistory = false;
+
+    function getTodayString() {
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const dd = String(today.getDate()).padStart(2, '0');
+      return `${yyyy}-${mm}-${dd}`;
+    }
+
+    taskDueDate.value = getTodayString();
+
+    function loadData() {
+      try {
+        const savedTasks = localStorage.getItem('daily_tasks_v4');
+        if (savedTasks) tasks = JSON.parse(savedTasks);
+        const savedHistory = localStorage.getItem('daily_history_v4');
+        if (savedHistory) history = JSON.parse(savedHistory);
+      } catch (e) {
+        console.warn('Storage load failed:', e);
+      }
+      render();
+    }
+
+    function saveData() {
+      try {
+        localStorage.setItem('daily_tasks_v4', JSON.stringify(tasks));
+        localStorage.setItem('daily_history_v4', JSON.stringify(history));
+      } catch (e) {
+        console.warn('Storage save failed:', e);
+      }
+      render();
+    }
+
+    function render() {
+      taskList.innerHTML = '';
+      const todayStr = getTodayString();
+
+      if (tasks.length === 0) {
+        footerBar.style.display = 'none';
+      } else {
+        footerBar.style.display = 'flex';
+      }
+
+      tasks.forEach(function (task) {
+        const li = document.createElement('li');
+        li.className = 'task-item';
+
+        // 1. IF THIS TASK IS BEING EDITED: Render the inline edit box
+        if (editingTaskId === task.id) {
+          const editBox = document.createElement('div');
+          editBox.className = 'edit-box';
+
+          const editInput = document.createElement('input');
+          editInput.type = 'text';
+          editInput.value = task.text;
+
+          const editActions = document.createElement('div');
+          editActions.className = 'edit-actions';
+
+          const dateWrapper = document.createElement('div');
+          dateWrapper.className = 'due-date-wrapper';
+          dateWrapper.innerHTML = '<label>Due:</label>';
+          const editDate = document.createElement('input');
+          editDate.type = 'date';
+          editDate.value = task.dueDate || '';
+          dateWrapper.appendChild(editDate);
+
+          const btnGroup = document.createElement('div');
+          btnGroup.style.display = 'flex';
+          btnGroup.style.gap = '6px';
+
+          const saveBtn = document.createElement('button');
+          saveBtn.type = 'button';
+          saveBtn.className = 'btn-save';
+          saveBtn.textContent = 'Save';
+          saveBtn.addEventListener('click', function () {
+            const newText = editInput.value.trim();
+            if (newText) {
+              task.text = newText;
+              task.dueDate = editDate.value;
+              editingTaskId = null;
+              saveData();
+            }
+          });
+
+          const cancelBtn = document.createElement('button');
+          cancelBtn.type = 'button';
+          cancelBtn.className = 'btn-cancel';
+          cancelBtn.textContent = 'Cancel';
+          cancelBtn.addEventListener('click', function () {
+            editingTaskId = null;
+            render();
+          });
+
+          btnGroup.appendChild(saveBtn);
+          btnGroup.appendChild(cancelBtn);
+          editActions.appendChild(dateWrapper);
+          editActions.appendChild(btnGroup);
+
+          editBox.appendChild(editInput);
+          editBox.appendChild(editActions);
+          li.appendChild(editBox);
+          taskList.appendChild(li);
+
+          setTimeout(function () { editInput.focus(); }, 10);
+          return;
+        }
+
+        // 2. NORMAL DISPLAY MODE
+        const topRow = document.createElement('div');
+        topRow.className = 'task-top';
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.checked = task.completed;
+
+        const title = document.createElement('span');
+        title.className = 'task-title' + (task.completed ? ' completed' : '');
+        title.textContent = task.text;
+
+        const btnContainer = document.createElement('div');
+        btnContainer.style.display = 'flex';
+        btnContainer.style.gap = '4px';
+
+        // Edit button
+        const editBtn = document.createElement('button');
+        editBtn.type = 'button';
+        editBtn.className = 'action-btn';
+        editBtn.textContent = 'Edit';
+        editBtn.addEventListener('click', function () {
+          editingTaskId = task.id;
+          render();
+        });
+
+        // Duplicate button
+        const dupBtn = document.createElement('button');
+        dupBtn.type = 'button';
+        dupBtn.className = 'action-btn dup';
+        dupBtn.textContent = 'Duplicate';
+        dupBtn.addEventListener('click', function () {
+          tasks.push({
+            id: Date.now(),
+            text: task.text,
+            createdAt: getTodayString(),
+            dueDate: task.dueDate || getTodayString(),
+            completed: false
+          });
+          saveData();
+        });
+
+        checkbox.addEventListener('change', function () {
+          task.completed = checkbox.checked;
+          saveData();
+        });
+
+        btnContainer.appendChild(editBtn);
+        btnContainer.appendChild(dupBtn);
+
+        topRow.appendChild(checkbox);
+        topRow.appendChild(title);
+        topRow.appendChild(btnContainer);
+
+        const metaRow = document.createElement('div');
+        metaRow.className = 'task-meta';
+
+        const createdBadge = document.createElement('span');
+        createdBadge.textContent = `Added: ${task.createdAt}`;
+        metaRow.appendChild(createdBadge);
+
+        if (task.dueDate) {
+          const isOverdue = !task.completed && task.dueDate < todayStr;
+          const dueBadge = document.createElement('span');
+          dueBadge.className = 'due-badge' + (isOverdue ? ' overdue' : '');
+          dueBadge.textContent = `${isOverdue ? '⚠️ Overdue: ' : 'Due: '}${task.dueDate}`;
+          metaRow.appendChild(dueBadge);
+        }
+
+        li.appendChild(topRow);
+        li.appendChild(metaRow);
+        taskList.appendChild(li);
+      });
+
+      const remaining = tasks.filter(function (t) { return !t.completed; }).length;
+      taskCount.textContent = `${remaining} ${remaining === 1 ? 'task' : 'tasks'} left`;
+
+      // 3. Render history
+      historyCount.textContent = history.length;
+      historyList.innerHTML = '';
+
+      if (history.length === 0) {
+        const emptyLi = document.createElement('li');
+        emptyLi.style.color = '#9ca3af';
+        emptyLi.style.fontStyle = 'italic';
+        emptyLi.textContent = 'No archived tasks yet.';
+        historyList.appendChild(emptyLi);
+      } else {
+        history.forEach(function (item) {
+          const li = document.createElement('li');
+          li.className = 'history-item';
+
+          const textDiv = document.createElement('div');
+          const title = document.createElement('div');
+          title.className = 'history-title';
+          title.textContent = item.text;
+          const dates = document.createElement('div');
+          dates.style.fontSize = '10px';
+          dates.style.color = '#9ca3af';
+          dates.textContent = `Completed: ${item.completedAt} (Added: ${item.createdAt})`;
+
+          textDiv.appendChild(title);
+          textDiv.appendChild(dates);
+
+          const readdBtn = document.createElement('button');
+          readdBtn.type = 'button';
+          readdBtn.className = 'readd-btn';
+          readdBtn.textContent = 'Re-add';
+          readdBtn.addEventListener('click', function () {
+            tasks.push({
+              id: Date.now(),
+              text: item.text,
+              createdAt: getTodayString(),
+              dueDate: getTodayString(),
+              completed: false
+            });
+            history = history.filter(function (h) { return h.id !== item.id; });
+            saveData();
+          });
+
+          li.appendChild(textDiv);
+          li.appendChild(readdBtn);
+          historyList.appendChild(li);
+        });
+      }
+    }
+
+    toggleHistory.addEventListener('click', function () {
+      showHistory = !showHistory;
+      historyWrapper.style.display = showHistory ? 'block' : 'none';
+      historyToggleIcon.textContent = showHistory ? '▲' : '▼';
+    });
+
+    taskForm.addEventListener('submit', function (event) {
+      event.preventDefault();
+
+      const text = taskInput.value.trim();
+      if (!text) return;
+
+      tasks.push({
+        id: Date.now(),
+        text: text,
+        createdAt: getTodayString(),
+        dueDate: taskDueDate.value || '',
+        completed: false
+      });
+
+      saveData();
+      taskInput.value = '';
+      taskInput.focus();
+    });
+
+    clearBtn.addEventListener('click', function () {
+      const completedTasks = tasks.filter(function (t) { return t.completed; });
+      if (completedTasks.length === 0) return;
+
+      completedTasks.forEach(function (t) {
+        history.unshift({
+          id: Date.now() + Math.random(),
+          text: t.text,
+          createdAt: t.createdAt,
+          completedAt: getTodayString()
+        });
+      });
+
+      tasks = tasks.filter(function (t) { return !t.completed; });
+      saveData();
+    });
+
+    loadData();
+  </script>
+</body>
+</html>
